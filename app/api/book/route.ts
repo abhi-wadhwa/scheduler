@@ -4,7 +4,7 @@ import { bookSpot } from "@/lib/queries";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { slotId, spotIndex, fullName } = body;
+    const { slotId, spotIndex, fullName, email } = body;
 
     if (
       !slotId ||
@@ -19,6 +19,17 @@ export async function POST(request: Request) {
       );
     }
 
+    if (
+      !email ||
+      typeof email !== "string" ||
+      !email.includes("@")
+    ) {
+      return NextResponse.json(
+        { error: "Please provide a valid email address." },
+        { status: 400 }
+      );
+    }
+
     if (spotIndex < 0 || spotIndex > 2) {
       return NextResponse.json(
         { error: "spotIndex must be 0, 1, or 2" },
@@ -26,7 +37,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const result = await bookSpot(slotId, spotIndex, fullName.trim());
+    const result = await bookSpot(slotId, spotIndex, fullName.trim(), email.trim());
 
     if (result.conflict) {
       return NextResponse.json(
@@ -35,7 +46,16 @@ export async function POST(request: Request) {
       );
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({
+      success: true,
+      booking: {
+        fullName: fullName.trim(),
+        email: email.trim(),
+        date: result.date,
+        timeLabel: result.timeLabel,
+        location: result.location,
+      },
+    });
   } catch {
     return NextResponse.json(
       { error: "Server error. Please try again." },

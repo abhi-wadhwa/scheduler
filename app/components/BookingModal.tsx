@@ -5,7 +5,7 @@ import { useState } from "react";
 interface BookingModalProps {
   timeLabel: string;
   spotIndex: number;
-  onConfirm: (fullName: string) => void;
+  onConfirm: (fullName: string, email: string) => void;
   onCancel: () => void;
 }
 
@@ -16,8 +16,9 @@ export default function BookingModal({
   onCancel,
 }: BookingModalProps) {
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
 
-  const valid = name.trim().length >= 2;
+  const valid = name.trim().length >= 2 && email.includes("@");
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
@@ -34,9 +35,20 @@ export default function BookingModal({
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && valid && onConfirm(name.trim())}
           placeholder="Jane Doe"
           autoFocus
+          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        />
+
+        <label className="block text-sm font-medium text-gray-700 mb-1 mt-3">
+          Email
+        </label>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && valid && onConfirm(name.trim(), email.trim())}
+          placeholder="jane@example.com"
           className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         />
 
@@ -48,7 +60,7 @@ export default function BookingModal({
             Cancel
           </button>
           <button
-            onClick={() => onConfirm(name.trim())}
+            onClick={() => onConfirm(name.trim(), email.trim())}
             disabled={!valid}
             className="flex-1 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >

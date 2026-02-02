@@ -5,12 +5,13 @@ export interface SlotWithBookings {
   date: string;
   time_label: string;
   display_order: number;
+  location: string | null;
   bookings: { spot_index: number; full_name: string }[];
 }
 
 export async function getAllSlotsWithBookings(): Promise<SlotWithBookings[]> {
   const slotsResult = await sql`
-    SELECT id, TO_CHAR(date, 'YYYY-MM-DD') as date, time_label, display_order
+    SELECT id, TO_CHAR(date, 'YYYY-MM-DD') as date, time_label, display_order, location
     FROM time_slots
     ORDER BY display_order
   `;
@@ -36,6 +37,7 @@ export async function getAllSlotsWithBookings(): Promise<SlotWithBookings[]> {
     date: slot.date,
     time_label: slot.time_label,
     display_order: slot.display_order,
+    location: slot.location ?? null,
     bookings: bookingsBySlot.get(slot.id) || [],
   }));
 }
@@ -43,8 +45,9 @@ export async function getAllSlotsWithBookings(): Promise<SlotWithBookings[]> {
 export async function bookSpot(
   slotId: string,
   spotIndex: number,
-  fullName: string
-): Promise<{ success: boolean; conflict: boolean }> {
+  fullName: string,
+  email: string
+): Promise<{ success: boolean; conflict: boolean; date?: string; timeLabel?: string; location?: string }> {
   const client = await sql.connect();
   try {
     await client.query("BEGIN");
@@ -60,15 +63,27 @@ export async function bookSpot(
     }
 
     await client.query(
-      "INSERT INTO bookings (slot_id, spot_index, full_name) VALUES ($1, $2, $3)",
-      [slotId, spotIndex, fullName]
+      "INSERT INTO bookings (slot_id, spot_index, full_name, email) VALUES ($1, $2, $3, $4)",
+      [slotId, spotIndex, fullName, email]
+    );
+
+    const slotInfo = await client.query(
+      "SELECT TO_CHAR(date, 'YYYY-MM-DD') as date, time_label, location FROM time_slots WHERE id = $1",
+      [slotId]
     );
 
     await client.query("COMMIT");
-    return { success: true, conflict: false };
+
+    const slot = slotInfo.rows[0];
+    return {
+      success: true,
+      conflict: false,
+      date: slot?.date,
+      timeLabel: slot?.time_label,
+      location: slot?.location,
+    };
   } catch (error: unknown) {
     await client.query("ROLLBACK");
-    // Unique constraint violation (PostgreSQL error code 23505)
     if (
       error instanceof Error &&
       "code" in error &&

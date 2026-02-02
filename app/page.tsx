@@ -14,6 +14,7 @@ interface Slot {
   date: string;
   time_label: string;
   display_order: number;
+  location: string | null;
   bookings: Booking[];
 }
 
@@ -21,6 +22,14 @@ interface ModalState {
   slotId: string;
   spotIndex: number;
   timeLabel: string;
+}
+
+interface ConfirmationState {
+  fullName: string;
+  email: string;
+  date: string;
+  timeLabel: string;
+  location: string;
 }
 
 export default function Home() {
@@ -37,6 +46,7 @@ export default function Home() {
     message: string;
     type: "success" | "error";
   } | null>(null);
+  const [confirmation, setConfirmation] = useState<ConfirmationState | null>(null);
   const fetchRef = useRef(false);
 
   const fetchSlots = useCallback(async () => {
@@ -105,7 +115,7 @@ export default function Home() {
     });
   };
 
-  const handleConfirm = async (fullName: string) => {
+  const handleConfirm = async (fullName: string, email: string) => {
     if (!modal) return;
 
     const { slotId, spotIndex } = modal;
@@ -116,7 +126,7 @@ export default function Home() {
       const res = await fetch("/api/book", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ slotId, spotIndex, fullName }),
+        body: JSON.stringify({ slotId, spotIndex, fullName, email }),
       });
 
       if (res.status === 409) {
@@ -127,7 +137,22 @@ export default function Home() {
       } else if (!res.ok) {
         setToast({ message: "Something went wrong. Please try again.", type: "error" });
       } else {
-        setToast({ message: "Booking confirmed!", type: "success" });
+        const data = await res.json();
+        const b = data.booking;
+        const dateStr = b.date
+          ? new Date(b.date + "T00:00:00").toLocaleDateString("en-US", {
+              weekday: "long",
+              month: "long",
+              day: "numeric",
+            })
+          : "";
+        setConfirmation({
+          fullName: b.fullName,
+          email: b.email,
+          date: dateStr,
+          timeLabel: b.timeLabel,
+          location: b.location || "",
+        });
       }
     } catch {
       setToast({ message: "Network error. Please try again.", type: "error" });
@@ -208,7 +233,7 @@ export default function Home() {
         ))
       )}
 
-      {/* Modal */}
+      {/* Booking Modal */}
       {modal && (
         <BookingModal
           timeLabel={modal.timeLabel}
@@ -216,6 +241,33 @@ export default function Home() {
           onConfirm={handleConfirm}
           onCancel={() => setModal(null)}
         />
+      )}
+
+      {/* Confirmation Overlay */}
+      {confirmation && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm mx-4 p-6 text-center">
+            <div className="text-4xl mb-3">&#10003;</div>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              Booking Confirmed
+            </h2>
+            <div className="text-sm text-gray-600 space-y-1 mb-5">
+              <p><span className="font-medium text-gray-800">Name:</span> {confirmation.fullName}</p>
+              <p><span className="font-medium text-gray-800">Email:</span> {confirmation.email}</p>
+              <p><span className="font-medium text-gray-800">Date:</span> {confirmation.date}</p>
+              <p><span className="font-medium text-gray-800">Time:</span> {confirmation.timeLabel}</p>
+              {confirmation.location && (
+                <p><span className="font-medium text-gray-800">Location:</span> {confirmation.location}</p>
+              )}
+            </div>
+            <button
+              onClick={() => setConfirmation(null)}
+              className="rounded-lg bg-blue-600 px-6 py-2 text-sm text-white hover:bg-blue-700 transition-colors"
+            >
+              Done
+            </button>
+          </div>
+        </div>
       )}
 
       {/* Toast */}
