@@ -10,7 +10,7 @@ export interface SlotWithBookings {
 
 export async function getAllSlotsWithBookings(): Promise<SlotWithBookings[]> {
   const slotsResult = await sql`
-    SELECT id, date, time_label, display_order
+    SELECT id, TO_CHAR(date, 'YYYY-MM-DD') as date, time_label, display_order
     FROM time_slots
     ORDER BY display_order
   `;
