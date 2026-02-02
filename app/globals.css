@@ -1,0 +1,8 @@
+@import "tailwindcss";
+
+@theme {
+  --color-available: #3b82f6;
+  --color-available-hover: #2563eb;
+  --color-taken: #9ca3af;
+  --color-booking: #8b5cf6;
+}
