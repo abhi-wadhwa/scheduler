@@ -180,7 +180,7 @@ export default function Home() {
           Schedule Your VCA Final Interview
         </h1>
         <p className="text-sm text-gray-500 mt-2 leading-relaxed">
-          Congratulations on making it to the final interview! This will be a group interview in groups of three. Please select a time that works for you below and take note of your interview location. We ask that you arrive 10 minutes before your scheduled time.
+          Congratulations on making it to the final interview! This will be a group interview in groups of three. Please select a time that works for you below and take note of your interview location. We ask that you arrive 10 minutes before your scheduled time. If you have any issues, please reach out to <a href="mailto:nmesfin@usc.edu" className="text-blue-600 underline hover:text-blue-800">nmesfin@usc.edu</a> as soon as possible.
         </p>
       </div>
 
