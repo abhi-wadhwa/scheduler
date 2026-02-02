@@ -177,10 +177,10 @@ export default function Home() {
     <main className="max-w-2xl mx-auto px-4 py-8">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">
-          Interview Scheduler
+          Schedule Your VCA Final Interview
         </h1>
-        <p className="text-sm text-gray-500 mt-1">
-          Select an available spot to book your interview time.
+        <p className="text-sm text-gray-500 mt-2 leading-relaxed">
+          Congratulations on making it to the final interview! This will be a group interview in groups of three. Please select a time that works for you below and take note of your interview location. We ask that you arrive 10 minutes before your scheduled time.
         </p>
       </div>
 
