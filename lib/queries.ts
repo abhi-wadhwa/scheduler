@@ -16,7 +16,7 @@ export async function getAllSlotsWithBookings(): Promise<SlotWithBookings[]> {
   `;
 
   const bookingsResult = await sql`
-    SELECT slot_id, spot_index, full_name
+    SELECT slot_id, spot_index
     FROM bookings
     ORDER BY spot_index
   `;

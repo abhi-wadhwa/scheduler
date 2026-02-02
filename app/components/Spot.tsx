@@ -48,10 +48,10 @@ export default function Spot({
     );
   }
 
-  if (!available && name) {
+  if (!available) {
     return (
       <div className="flex items-center justify-center rounded-lg border border-gray-200 bg-gray-100 px-4 py-3 opacity-70 cursor-not-allowed">
-        <span className="text-sm text-gray-500">{formatName(name)}</span>
+        <span className="text-sm text-gray-500">Taken</span>
       </div>
     );
   }
