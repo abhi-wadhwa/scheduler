@@ -4,7 +4,6 @@ import Spot from "./Spot";
 
 interface Booking {
   spot_index: number;
-  full_name: string;
 }
 
 interface TimeSlotProps {
@@ -24,7 +23,7 @@ export default function TimeSlot({
   disabled,
   onBook,
 }: TimeSlotProps) {
-  const bookedMap = new Map(bookings.map((b) => [b.spot_index, b.full_name]));
+  const bookedSet = new Set(bookings.map((b) => b.spot_index));
 
   return (
     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 py-3 border-b border-gray-100 last:border-0">
@@ -36,14 +35,13 @@ export default function TimeSlot({
           const isThisBooking =
             bookingInProgress?.slotId === slotId &&
             bookingInProgress?.spotIndex === spotIndex;
-          const name = bookedMap.get(spotIndex);
+          const taken = bookedSet.has(spotIndex);
           return (
             <Spot
               key={spotIndex}
-              available={!name}
-              name={name}
+              available={!taken}
               isBooking={isThisBooking}
-              disabled={disabled || !!name}
+              disabled={disabled || taken}
               onClick={() => onBook(slotId, spotIndex)}
             />
           );

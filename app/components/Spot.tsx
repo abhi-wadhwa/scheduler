@@ -1,14 +1,7 @@
 "use client";
 
-function formatName(fullName: string): string {
-  const parts = fullName.trim().split(/\s+/);
-  if (parts.length === 1) return parts[0];
-  return `${parts[0]} ${parts[parts.length - 1][0]}.`;
-}
-
 interface SpotProps {
   available: boolean;
-  name?: string;
   isBooking: boolean;
   disabled: boolean;
   onClick: () => void;
@@ -16,7 +9,6 @@ interface SpotProps {
 
 export default function Spot({
   available,
-  name,
   isBooking,
   disabled,
   onClick,
